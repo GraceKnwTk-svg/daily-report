@@ -2,25 +2,26 @@
 function initDateTime() {
     const now = new Date();
     
-    // ตั้งค่าวันที่ (รูปแบบ YYYY-MM-DD สำหรับอินพุตประเภท date)
+    // ดึงปี เดือน วัน ปัจจุบันของเครื่อง (ปรับให้เข้ากับเขตเวลาท้องถิ่น)
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     document.getElementById('date').value = `${year}-${month}-${day}`;
     
-    // ตั้งค่าเวลา (รูปแบบ HH:MM สำหรับอินพุตประเภท time)
+    // ดึงชั่วโมง และ นาที ปัจจุบันของเครื่อง
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     document.getElementById('time').value = `${hours}:${minutes}`;
 }
 
+// สั่งให้ระบบเริ่มทำงานตั้งแต่วินาทีแรกที่โหลดไฟล์นี้เสร็จ
+initDateTime();
+
 function generateReport() {
-    // 1. ดึงค่าจากฟอร์มฝั่งซ้ายมาเก็บไว้
     const hub = document.getElementById('hub').value || '-';
     const dateInput = document.getElementById('date').value;
     const time = document.getElementById('time').value || '--:--';
     
-    // แปลงค่าอินพุตให้เป็นตัวเลข (ถ้าไม่มีให้เป็น 0)
     const inHub = parseInt(document.getElementById('inHub').value) || 0;
     const assign = parseInt(document.getElementById('assign').value) || 0;
     const delivered = parseInt(document.getElementById('delivered').value) || 0;
@@ -30,7 +31,7 @@ function generateReport() {
     const issue = document.getElementById('issue').value || '-';
     const action = document.getElementById('action').value || '-';
 
-    // 2. [สูตรคำนวณอัตโนมัติ] 
+    // สูตรคำนวณอัตโนมัติ
     const noAssign = inHub - assign; 
     const hcActive = actual2w + actual4w; 
     
@@ -39,7 +40,6 @@ function generateReport() {
         deliveryRate = ((delivered / assign) * 100).toFixed(1);
     }
 
-    // คำนวณ Workload เฉลี่ย (WL เฉลี่ย 70:30)
     let wl2w = 0;
     let wl4w = 0;
     if (assign > 0) {
@@ -52,7 +52,6 @@ function generateReport() {
         pdtyAssign = Math.round(assign / hcActive);
     }
 
-    // 3. จัดรูปแบบวันที่ให้ออกมาเป็น "08 Jul 2026"
     let formattedDate = '-';
     if(dateInput) {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -60,7 +59,6 @@ function generateReport() {
         formattedDate = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
     }
 
-    // 4. แสดงผลลัพธ์ในช่องด้านขวา (Result)
     const textOutput = `Daily Report - ${formattedDate} (${time})
 Hub : ${hub}
 
@@ -84,7 +82,7 @@ WL เฉลี่ย 70:30
 • 4W : 30%
 
 SLA : 96.00%
-PDTY Assign : ${pdtyAssign} (Target: 170)
+PDTY Assign : ${pdtyAssign} (Target: 197)
 
 Issue หน้างาน : ${issue}
 Action : ${action}`;
@@ -115,7 +113,6 @@ function clearReport() {
         document.getElementById('action').value = '';
         document.getElementById('resultBox').value = '';
         
-        // ล้างแล้วรีเซ็ตวันเวลาปัจจุบันให้ใหม่ทันที
         initDateTime();
         document.getElementById('hub').value = 'ABYAI-B';
     }
