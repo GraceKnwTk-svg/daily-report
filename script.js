@@ -1,21 +1,31 @@
-// ฟังก์ชันสำหรับตั้งค่า วันที่ และ เวลา ปัจจุบันโดยอัตโนมัติเมื่อเปิดเว็บ
-function initDateTime() {
-    const now = new Date();
-    
-    // ดึงปี เดือน วัน ปัจจุบันของเครื่อง (ปรับให้เข้ากับเขตเวลาท้องถิ่น)
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    document.getElementById('date').value = `${year}-${month}-${day}`;
-    
-    // ดึงชั่วโมง และ นาที ปัจจุบันของเครื่อง
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('time').value = `${hours}:${minutes}`;
+// ฟังก์ชันดึงวันเวลาปัจจุบันมาใส่ในช่อง input ทันที
+function setCurrentDateTime() {
+    try {
+        const now = new Date();
+        
+        // แปลงเขตเวลาให้ตรงกับประเทศไทย (GMT+7)
+        const tzOffset = now.getTimezoneOffset() * 60000;
+        const localISODate = new Date(now.getTime() - tzOffset).toISOString();
+        
+        // ตั้งค่าวันที่ (YYYY-MM-DD)
+        const todayDate = localISODate.split('T')[0];
+        document.getElementById('date').value = todayDate;
+        
+        // ตั้งค่าเวลา (HH:MM)
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('time').value = `${hours}:${minutes}`;
+    } catch (e) {
+        console.log("Error setting date/time:", e);
+    }
 }
 
-// สั่งให้ระบบเริ่มทำงานตั้งแต่วินาทีแรกที่โหลดไฟล์นี้เสร็จ
-initDateTime();
+// สั่งให้ระบบทำงานตั้งแต่วินาทีแรกที่หน้าเว็บเปิดขึ้นมา
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setCurrentDateTime);
+} else {
+    setCurrentDateTime();
+}
 
 function generateReport() {
     const hub = document.getElementById('hub').value || '-';
@@ -31,7 +41,7 @@ function generateReport() {
     const issue = document.getElementById('issue').value || '-';
     const action = document.getElementById('action').value || '-';
 
-    // สูตรคำนวณอัตโนมัติ
+    // คำนวณอัตโนมัติ
     const noAssign = inHub - assign; 
     const hcActive = actual2w + actual4w; 
     
@@ -113,7 +123,7 @@ function clearReport() {
         document.getElementById('action').value = '';
         document.getElementById('resultBox').value = '';
         
-        initDateTime();
+        setCurrentDateTime();
         document.getElementById('hub').value = 'ABYAI-B';
     }
 }
