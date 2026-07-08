@@ -84,7 +84,7 @@ WL เฉลี่ย 70:30
 • 4W : 30%
 
 SLA : 96.00%
-PDTY Assign : ${pdtyAssign} (Target: 197)
+PDTY Assign : ${pdtyAssign} (Target: 170)
 
 Issue หน้างาน : ${issue}
 Action : ${action}`;
