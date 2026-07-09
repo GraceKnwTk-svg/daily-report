@@ -52,9 +52,16 @@ function generateReport() {
 
     let wl2w = 0;
     let wl4w = 0;
+    let wl2wPercent = 0; // เพิ่มใหม่: เก็บค่า % ของรถ 2W หลังจากการคำนวณเฉลี่ยจริง
+    let wl4wPercent = 0; // เพิ่มใหม่: เก็บค่า % ของรถ 4W หลังจากการคำนวณเฉลี่ยจริง
+
     if (assign > 0) {
         wl2w = Math.round(assign * 0.7);
         wl4w = Math.round(assign * 0.3);
+        
+        // คำนวณเปอร์เซ็นต์จริงที่ได้จากค่าเฉลี่ยปัดเศษ (แสดงทศนิยม 1 ตำแหน่ง หรือใช้ปัดเศษตามต้องการ)
+        wl2wPercent = ((wl2w / assign) * 100).toFixed(1);
+        wl4wPercent = ((wl4w / assign) * 100).toFixed(1);
     }
 
     let pdtyAssign = 0;
@@ -88,8 +95,8 @@ WL เฉลี่ย 70:30
 • 4W : ${wl4w.toLocaleString()}
 
 %2W (โดยประมาณ)
-• 2W : 70%
-• 4W : 30%
+• 2W : ${wl2wPercent}%
+• 4W : ${wl4wPercent}%
 
 SLA : 96.00%
 PDTY Assign : ${pdtyAssign} (Target: 197)
