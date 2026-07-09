@@ -1,4 +1,4 @@
-// ฟังก์ชันดึงวันเวลาปัจจุบันมาใส่ในช่อง input ทันที
+// ฟังก์ชันดึงวันเวลาปัจจุบันมาใส่ในช่อง input ทันที (อัปเดตแก้วิธีจัดการค่า String วันที่ให้เสถียรขึ้น)
 function setCurrentDateTime() {
     try {
         const now = new Date();
@@ -41,7 +41,7 @@ function generateReport() {
     const issue = document.getElementById('issue').value || '-';
     const action = document.getElementById('action').value || '-';
 
-    // คำนวณอัตโนมัติ
+    // คำนวณค่าพื้นฐานอัตโนมัติ
     const noAssign = inHub - assign; 
     const hcActive = actual2w + actual4w; 
     
@@ -50,25 +50,25 @@ function generateReport() {
         deliveryRate = ((delivered / assign) * 100).toFixed(1);
     }
 
-    // แก้ไขสูตร: คำนวณ WL เฉลี่ยต่อชิ้นงานแยกตามรายบุคคล (ชิ้นต่อคน)
+    // [สูตรใหม่] คำนวณชิ้นงานรวมตามสัดส่วน 70:30 จากเป้า Assign ทั้งหมด ก่อนนำไปหาค่าเฉลี่ยรายบุคคล
     let wl2w = 0;
     let wl4w = 0;
     let wl2wPercent = 0;
     let wl4wPercent = 0;
 
     if (assign > 0) {
-        // คิดสัดส่วนชิ้นงาน 70% และ 30% แล้วหารเฉลี่ยด้วยจำนวนคนทำงานแต่ละประเภท
-        const totalWl2wPieces = assign * 0.7;
-        const totalWl4wPieces = assign * 0.3;
+        const totalWl2wPieces = assign * 0.7; // ยอดงานรวมฝั่ง 2W (70%)
+        const totalWl4wPieces = assign * 0.3; // ยอดงานรวมฝั่ง 4W (30%)
 
+        // หารเฉลี่ยแยกตามจำนวนคนขับจริงในแต่ละกลุ่ม (ถ้าไม่มีคนขับในกลุ่มนั้นให้ตั้งค่าเป็น 0)
         wl2w = actual2w > 0 ? Math.round(totalWl2wPieces / actual2w) : 0;
         wl4w = actual4w > 0 ? Math.round(totalWl4wPieces / actual4w) : 0;
         
-        // คำนวณสัดส่วน % จริงจากยอดเฉลี่ยต่อคน (WL เฉลี่ย)
+        // คำนวณเปอร์เซ็นต์สัดส่วนภาระงานจริง (เทียบจากผลลัพธ์เฉลี่ยชิ้นต่อคน)
         const totalWlPerHead = wl2w + wl4w;
         if (totalWlPerHead > 0) {
-            wl2wPercent = ((wl2w / totalWlPerHead) * 100).toFixed(1);
-            wl4wPercent = ((wl4w / totalWlPerHead) * 100).toFixed(1);
+            wl2wPercent = Math.round((wl2w / totalWlPerHead) * 100);
+            wl4wPercent = Math.round((wl4w / totalWlPerHead) * 100);
         }
     }
 
@@ -84,27 +84,28 @@ function generateReport() {
         formattedDate = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
     }
 
+    // ประกอบข้อความโครงสร้างรายงานประจำวัน (จับกลุ่มและเว้นวรรคตามฟอร์แมตคลังอื่นเป๊ะๆ)
     const textOutput = `Daily Report - ${formattedDate} (${time})
 Hub : ${hub}
 
 In Hub : ${inHub.toLocaleString()} Pcs.
 Assign : ${assign.toLocaleString()} Pcs.
-No Assign : ${noAssign.toLocaleString()} Pcs.
+No Assign : ${noAssign <= 0 ? '-' : noAssign.toLocaleString()} Pcs.
 Normal : 0
 
 HC Active : ${hcActive} คน
-• 2W : ${actual2w}
-• 4W : ${actual4w}
+ • 2W : ${actual2w}
+ • 4W : ${actual4w}
 
 Delivered To Buyer : ${delivered.toLocaleString()} Pcs. (${deliveryRate}%)
 
 WL เฉลี่ย 70:30
-• 2W : ${wl2w.toLocaleString()}
-• 4W : ${wl4w.toLocaleString()}
+ • 2W : ${wl2w.toLocaleString()}
+ • 4W : ${wl4w.toLocaleString()}
 
 %2W (โดยประมาณ)
-• 2W : ${wl2wPercent}%
-• 4W : ${wl4wPercent}%
+ • 2W : ${wl2wPercent}%
+ • 4W : ${wl4wPercent}%
 
 SLA : 96.00%
 PDTY Assign : ${pdtyAssign} (Target: 197)
