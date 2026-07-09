@@ -50,18 +50,26 @@ function generateReport() {
         deliveryRate = ((delivered / assign) * 100).toFixed(1);
     }
 
+    // แก้ไขสูตร: คำนวณ WL เฉลี่ยต่อชิ้นงานแยกตามรายบุคคล (ชิ้นต่อคน)
     let wl2w = 0;
     let wl4w = 0;
-    let wl2wPercent = 0; // เพิ่มใหม่: เก็บค่า % ของรถ 2W หลังจากการคำนวณเฉลี่ยจริง
-    let wl4wPercent = 0; // เพิ่มใหม่: เก็บค่า % ของรถ 4W หลังจากการคำนวณเฉลี่ยจริง
+    let wl2wPercent = 0;
+    let wl4wPercent = 0;
 
     if (assign > 0) {
-        wl2w = Math.round(assign * 0.7);
-        wl4w = Math.round(assign * 0.3);
+        // คิดสัดส่วนชิ้นงาน 70% และ 30% แล้วหารเฉลี่ยด้วยจำนวนคนทำงานแต่ละประเภท
+        const totalWl2wPieces = assign * 0.7;
+        const totalWl4wPieces = assign * 0.3;
+
+        wl2w = actual2w > 0 ? Math.round(totalWl2wPieces / actual2w) : 0;
+        wl4w = actual4w > 0 ? Math.round(totalWl4wPieces / actual4w) : 0;
         
-        // คำนวณเปอร์เซ็นต์จริงที่ได้จากค่าเฉลี่ยปัดเศษ (แสดงทศนิยม 1 ตำแหน่ง หรือใช้ปัดเศษตามต้องการ)
-        wl2wPercent = ((wl2w / assign) * 100).toFixed(1);
-        wl4wPercent = ((wl4w / assign) * 100).toFixed(1);
+        // คำนวณสัดส่วน % จริงจากยอดเฉลี่ยต่อคน (WL เฉลี่ย)
+        const totalWlPerHead = wl2w + wl4w;
+        if (totalWlPerHead > 0) {
+            wl2wPercent = ((wl2w / totalWlPerHead) * 100).toFixed(1);
+            wl4wPercent = ((wl4w / totalWlPerHead) * 100).toFixed(1);
+        }
     }
 
     let pdtyAssign = 0;
